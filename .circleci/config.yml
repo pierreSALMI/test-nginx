@@ -12,7 +12,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - dev
           pre-steps:
             - run:
@@ -22,19 +22,19 @@ workflows:
                   if [ "$CIRCLE_BRANCH" = "dev" ]
                   then
                     echo 'export APP_ENV=dev' >> $BASH_ENV
-                    echo 'export CLUSTER_NAME=mytwiga-dev-1' >> $BASH_ENV
+                    echo 'export CLUSTER_NAME=test-dev-1' >> $BASH_ENV
                   else
                     echo 'export APP_ENV=prod' >> $BASH_ENV
-                    echo 'export CLUSTER_NAME=mytwiga-prod-1' >> $BASH_ENV
+                    echo 'export CLUSTER_NAME=test-prod-1' >> $BASH_ENV
                   fi
                   source $BASH_ENV
                   echo "APP_ENV set to $APP_ENV and CLUSTER_NAME to $CLUSTER_NAME"                   
           context: global
           cluster: $CLUSTER_NAME
-          deployment: mytwiga-defi
+          deployment: test-nginx
           container: defi
-          namespace: web
-          image: mytwiga-defi
+          namespace: test
+          image: test-nginx
           registry-url: eu.gcr.io
           tag: $CIRCLE_BRANCH-$CIRCLE_BUILD_NUM
           extra-build-args: '--build-arg APP_ENV'
