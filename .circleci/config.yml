@@ -3,11 +3,38 @@ version: 2.1
 # Use a package of configuration called an orb.
 orbs:
   # Declare a dependency on the welcome-orb
-  welcome: circleci/welcome-orb@0.4.1
+  gcp-gke: circleci/gcp-gke@1.0.3
 # Orchestrate or schedule a set of jobs
 workflows:
-  # Name the workflow "welcome"
-  welcome:
-    # Run the welcome/run job in its own container
+  publish-and-rollout-image:
     jobs:
-      - welcome/run
+     - gcp-gke/publish-and-rollout-image:
+      filters:
+        branches:
+          only:
+           - master
+           - dev
+      pre-steps:
+       - run:
+        name: Set APP_ENV and CLUSTER_NAME
+        command: |
+          echo "Setting env vars for branch $CIRCLE_BRANCH"
+          if [ "$CIRCLE_BRANCH" = "dev" ]
+          then
+            echo 'export APP_ENV=dev' >> $BASH_ENV
+            echo 'export CLUSTER_NAME=test-dev-1' >> $BASH_ENV
+          else
+            echo 'export APP_ENV=prod' >> $BASH_ENV
+            echo 'export CLUSTER_NAME=test-prod-1' >> $BASH_ENV
+          fi
+          source $BASH_ENV
+          echo "APP_ENV set to $APP_ENV and CLUSTER_NAME to $CLUSTER_NAME"
+      context: global
+      cluster: $CLUSTER_NAME
+      deployment: saru-test
+      container: defi
+      namespace: test
+      image: saru-test
+      registry-url: eu.gcr.io
+      tag: $CIRCLE_BRANCH-$CIRCLE_BUILD_NUM
+      extra-build-args: '--build-arg APP_ENV'
