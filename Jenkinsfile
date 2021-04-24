@@ -1,15 +1,14 @@
-pipeline {
-    agent {
-        docker {
-            image 'nginx:latest'
-            args '-p 80:80'
-        }
-    }
-    stages {
-        stage('Build') {
-            steps {
-                sh 'cat /etc/nginx/conf.d/default.conf'
-            }
-        }
-    }
+node {    
+    def app     
+    stage('Clone repository') {               
+        checkout scm    
+    }           
+    stage('Build image') {         
+        app = docker.build("sarumiishi/test-nginx:latest")    
+    }           
+    stage('Test image') {                       
+        app.inside {            
+         sh 'echo "Tests passed"'        
+        }    
+    }            
 }
