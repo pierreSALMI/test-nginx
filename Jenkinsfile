@@ -1,14 +1,10 @@
-node {    
-    def app     
-    stage('Clone repository') {               
-        checkout scm    
-    }           
-    stage('Build image') {         
-        app = docker.build("sarumiishi/test-nginx:latest")    
-    }           
-    stage('Test image') {                       
-        app.inside {            
-         sh 'echo "Tests passed"'        
-        }    
-    }            
+pipeline {
+    agent { docker { image 'python:3.5.1' } }
+    stages {
+        stage('build') {
+            steps {
+                sh 'python --version'
+            }
+        }
+    }
 }
